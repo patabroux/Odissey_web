@@ -1,0 +1,58 @@
+<html>
+
+<head>
+    <link href="vendor/patternlock/patternLock.min.css" rel="stylesheet" type="text/css" />
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/patternlock/patternLock.min.js"></script>
+    <script src="scripts/config.js"></script>
+    <script>
+        var lastPattern = "";
+        var gameId = "";
+
+        $(function () {
+            function GetParameterValues(param) {
+                var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                for (var i = 0; i < url.length; i++) {
+                    var urlparam = url[i].split('=');
+                    if (urlparam[0] == param) {
+                        return urlparam[1];
+                    }
+                }
+            }
+
+            var lock = new PatternLock("#patternContainer", {
+                onDraw: function (pattern) {
+                    console.log(pattern);
+                    lastPattern = pattern;
+                }
+            });
+
+            $("#btnValidate").on("click", function () {
+                //As an HTTP redirect (back button will not work )
+                $.ajax({
+                    url: "https://odissey-geolua-proxy.herokuapp.com/game/" + gameId,
+                    crossDomain : true,
+                    dataType: 'json',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: "{\n\t\"action\":\"" + lastPattern+ "\"\n}",
+                    success: function (data, textStatus, jQxhr) {
+                        window.location.replace(config.geolua.url + "/game/" + gameId);
+                    },
+                    error: function (jqXhr, textStatus, errorThrown) {
+                        console.log(errorThrown);
+                    }
+                });
+            });
+
+            gameId = GetParameterValues("gameid");
+        });
+    </script>
+</head>
+
+<body>
+    <div id="patternContainer"></div>
+    <button id="btnValidate"></button>
+</body>
+
+</html>

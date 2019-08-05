@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "D:\\Dev\\Odissey\\Pages"
+		}
+	],
+	"settings": {
+		"deploy.reloaded": {
+			"targets": [
+				{
+					"type": "ftp",
+					"name": "Odissey",
+					"description": "Odissey FTP",
+					"dir": "odissey.dx.am",
+					"host": "odissey.dx.am", "port": 21,
+					"user": "3117843", "password": "4=ohbjkE1ODgMHB"
+				}
+			]
+		}
+	}
+}
