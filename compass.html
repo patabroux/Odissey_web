@@ -1,0 +1,22 @@
+<html>
+
+<head>
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/compass/compass.min.js"></script>
+    <script src="scripts/config.js"></script>
+    <script>
+        Compass.init(function (method) {
+            console.log('Compass heading by ' + method);
+            
+            var watchID = Compass.watch(function (heading) {
+                $('.degrees').text(heading);
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div id="compass"></div>
+</body>
+
+</html>

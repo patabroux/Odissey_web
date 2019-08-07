@@ -284,6 +284,7 @@ function Player:showMainScreen()
 	self:refreshScores()
 
 	geo.ui.append(self.id, geo.widget.text("[["..SERVER_URL.."/screenlock.html?gameid="..GAME_ID.."|Screen Lock]]"))
+	geo.ui.append(self.id, geo.widget.text("[["..SERVER_URL.."/gpstracker.html?gameid="..GAME_ID.."|Geotracker]]"))
 	geo.ui.append(self.id, geo.widget.text("Lieux"))
 
 	geo.ui.append(self.id, geo.widget.places{
