@@ -2,6 +2,7 @@ GM_LOGIN = "gm"
 WIDGET_SCORES_IDX = 1
 WIDGET_NOTIFICATIONS_IDX = 2
 SERVER_URL = "http://odissey.dx.am"
+MAP_URL = SERVER_URL.."/gpstracker.html"
 
 PlayerTypes = {player=1,master=2}
 LoadStatus = {notLoaded=0,loading=1,loaded=2}
@@ -104,6 +105,7 @@ function Game:addPlayer(player)
 				"En direction de " .. place.text
 			))
 			geo.ui.append(player.id, geo.widget.text("{{"..place.image.."}}"))
+			geo.feature.gps(player.id, true) -- activate GPS
 			geo.ui.append(player.id, geo.widget.compass{
 				target = { lat = place.location.lat, lon = place.location.lon };
 				radius = 300;
@@ -283,8 +285,8 @@ function Player:showMainScreen()
 	self:clearUI()
 	self:refreshScores()
 
-	geo.ui.append(self.id, geo.widget.text("[["..SERVER_URL.."/screenlock.html?gameid="..GAME_ID.."|Screen Lock]]"))
-	geo.ui.append(self.id, geo.widget.text("[["..SERVER_URL.."/gpstracker.html?gameid="..GAME_ID.."|Geotracker]]"))
+	--geo.ui.append(self.id, geo.widget.text("[["..SERVER_URL.."/screenlock.html?gameid="..GAME_ID.."|Screen Lock]]"))
+	geo.ui.append(self.id, geo.widget.text("[["..MAP_URL.."?gameid="..GAME_ID.."|Carte]]"))
 	geo.ui.append(self.id, geo.widget.text("Lieux"))
 
 	geo.ui.append(self.id, geo.widget.places{

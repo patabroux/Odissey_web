@@ -6,40 +6,88 @@
     <title>demo - leaflet-gps-tracker</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <script src="vendor/jquery/jquery.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
-    <link rel="stylesheet" href="vendor/gpscontrol/gps-control.css" />
-    <script src="vendor/gpscontrol/GPSControl.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/utils.js"></script>
   </head>
   <body>
-    <h1>demo - leaflet-gps-tracker</h1>
-
     <div id="map"></div>
     <div id="msg"></div>
 
     <script>
-      var msg = document.getElementById('msg');
-      var map = L.map('map');
-      map.setZoom(16);
-      new L.TileLayer('https://koumoul.com/s/tileserver/styles/klokantech-basic/{z}/{x}/{y}.png', {
-        minZoom: 5,
-        maxZoom: 20,
-        attribution: '<a href="https://koumoul.com">© Koumoul</a> | <a href="http://openmaptiles.org/" target="_blank">© OpenMapTiles</a> <a href="http://www.openstreetmap.org/about/" target="_blank">© OpenStreetMap contributors</a>'
-      }).addTo(map);
+      var map;
+      var marker = null;
+      var gameId;
 
-      new GPSControl({
-        activeCallback: active => {
-          msg.innerHTML += 'GPS tracking is active ? ' + active + '<br/>';
-        },
-        successCallback: latlng => {
-          msg.innerHTML += 'GPS tracking detected a position change : ' + latlng + '<br/>';
-          map.setView(latlng);
-        },
-        errorCallback: error => {
-          msg.innerHTML += 'GPS tracking failed : ' + error.message + '<br/>';
+      var wpIcon = L.icon({
+          iconUrl: 'images/waypoint_icon.png',
+          //shadowUrl: 'leaf-shadow.png',
+
+          iconSize:     [48, 48], // size of the icon
+          //shadowSize:   [50, 64], // size of the shadow
+          //iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+          //shadowAnchor: [4, 62],  // the same for the shadow
+          //popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      });
+
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.watchPosition(showPosition);
+        } else { 
+          console.log("Geolocation is not supported by this browser.");
         }
-      }).addTo(map);
+      }
+
+      function getWaypoints() {
+        $.ajax({
+          url: config.waypoints.baseUrl,
+          contentType: "application/json",
+          dataType: 'json',
+          success: function(data){
+            $.each(data, function (i, item) {
+              m = L.marker([item.lat,item.lon], {icon: wpIcon});
+              m.addTo(map);
+            });
+          }
+        })
+      }
+
+      function showPosition(position) {
+        console.log("Latitude: " + position.coords.latitude + 
+        "<br>Longitude: " + position.coords.longitude);
+
+        if (marker == null) {
+          marker = L.marker([position.coords.latitude,position.coords.longitude]);
+          marker.addTo(map);
+        }
+        else {
+          var newLatLng = new L.LatLng(position.coords.latitude, position.coords.longitude);
+          marker.setLatLng(newLatLng); 
+        }
+
+        map.panTo(marker.getLatLng());
+      }
+
+      $(function() {
+        map = L.map('map');
+        map.setView(config.leaflet.startPos, 16);
+        new L.TileLayer('https://koumoul.com/s/tileserver/styles/klokantech-basic/{z}/{x}/{y}.png', {
+          minZoom: 5,
+          maxZoom: 20,
+          attribution: '<a href="https://koumoul.com">© Koumoul</a> | <a href="http://openmaptiles.org/" target="_blank">© OpenMapTiles</a> <a href="http://www.openstreetmap.org/about/" target="_blank">© OpenStreetMap contributors</a>'
+        }).addTo(map);
+
+        getWaypoints();
+        getLocation();
+        gameId = GetParameterValues("gameid");
+
+        $("#btnValidate").on("click", function () {
+          //As an HTTP redirect (back button will not work )
+          window.location.replace(config.geolua.url + "/game/" + gameId);
+        });
+      });
+
     </script>
 
     <style>
@@ -49,8 +97,11 @@
       }
       #map {
         width: 100%;
-        height: 50%;
+        height: 80%;
       }
     </style>
+
+    <p id="status"></p>
+    <button id="btnValidate">Retour</button>
   </body>
 </html>
