@@ -19,6 +19,7 @@
       var map;
       var marker = null;
       var gameId;
+      var waypoints = {};
 
       var wpIcon = L.icon({
           iconUrl: 'images/waypoint_icon.png',
@@ -48,6 +49,8 @@
             $.each(data, function (i, item) {
               m = L.marker([item.lat,item.lon], {icon: wpIcon});
               m.addTo(map);
+              L.circle([item.lat, item.lon], {radius : config.waypoints.proximityRadius * 1000}).addTo(map);
+              waypoints[item._id] = m;
             });
           }
         })
@@ -66,7 +69,19 @@
           marker.setLatLng(newLatLng); 
         }
 
-        map.panTo(marker.getLatLng());
+        for (var id in waypoints) {
+          var wp = waypoints[id];
+          var latLng = wp.getLatLng();
+          var d = distance(position.coords.latitude, position.coords.longitude, latLng.lat, latLng.lng, "K");
+
+          if (d < config.waypoints.proximityRadius) {
+            var ev = new CustomEvent("proximity", {"detail" : {"waypoint" : id, "distance" : d}});
+
+            document.dispatchEvent(ev);
+          }
+        }
+        //map.panTo(marker.getLatLng());
+
       }
 
       $(function() {
@@ -84,8 +99,23 @@
 
         $("#btnValidate").on("click", function () {
           //As an HTTP redirect (back button will not work )
-          window.location.replace(config.geolua.url + "/game/" + gameId);
+          gotoGame(gameId);
         });
+
+        document.addEventListener("proximity", function(e) {
+          var d = {"type" : "event", "type" : "proximity", "waypoint" : e.detail.waypoint}
+
+          console.log("Waypoint proximity : " + e.detail.waypoint + " distance : " + e.detail.distance);
+
+          submitGameEvent(gameId, d,
+            function(data, textStatus, jQxhr) {
+              gotoGame(gameId);
+            },
+            function(jqXhr, textStatus, errorThrown) {
+              console.log(errorThrown);
+            }
+          )
+        }); 
       });
 
     </script>

@@ -19,7 +19,6 @@
             });
 
             $("#btnValidate").on("click", function () {
-                //As an HTTP redirect (back button will not work )
                 $.ajax({
                     url: "https://odissey-geolua-proxy.herokuapp.com/game/" + gameId,
                     crossDomain : true,
@@ -28,6 +27,7 @@
                     contentType: 'application/json',
                     data: "{\n\t\"action\":\"" + lastPattern+ "\"\n}",
                     success: function (data, textStatus, jQxhr) {
+                        //As an HTTP redirect (back button will not work )
                         window.location.replace(config.geolua.url + "/game/" + gameId);
                     },
                     error: function (jqXhr, textStatus, errorThrown) {
